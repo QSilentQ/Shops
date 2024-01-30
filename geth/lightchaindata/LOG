@@ -1,0 +1,44 @@
+=============== Nov 7, 2022 (MSK) ===============
+09:19:17.974939 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:19:17.979063 db@open opening
+09:19:17.979682 version@stat F·[] S·0B[] Sc·[]
+09:19:17.980776 db@janitor F·2 G·0
+09:19:17.980825 db@open done T·1.7627ms
+09:19:18.019413 db@close closing
+09:19:18.019522 db@close done T·109.1µs
+=============== Nov 7, 2022 (MSK) ===============
+14:14:53.619351 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:14:53.619930 version@stat F·[] S·0B[] Sc·[]
+14:14:53.619930 db@open opening
+14:14:53.619930 journal@recovery F·1
+14:14:53.620780 journal@recovery recovering @1
+14:14:53.621899 memdb@flush created L0@2 N·33 S·2KiB "\x00\x85T..ɂ\xf6,v11":"\xf4\xe7\x9b..X>\xb0,v21"
+14:14:53.622494 version@stat F·[1] S·2KiB[2KiB] Sc·[0.25]
+14:14:53.627708 db@janitor F·3 G·0
+14:14:53.627708 db@open done T·7.7779ms
+14:14:53.641526 db@close closing
+14:14:53.641526 db@close done T·0s
+=============== Nov 7, 2022 (MSK) ===============
+14:16:52.483413 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+14:16:52.484009 version@stat F·[1] S·2KiB[2KiB] Sc·[0.25]
+14:16:52.484009 db@open opening
+14:16:52.484079 journal@recovery F·1
+14:16:52.485145 journal@recovery recovering @3
+14:16:52.486654 memdb@flush created L0@5 N·1 S·331B "eth..\xaa\xb3\x9b,v35":"eth..\xaa\xb3\x9b,v35"
+14:16:52.487192 version@stat F·[2] S·3KiB[3KiB] Sc·[0.50]
+14:16:52.492404 db@janitor F·4 G·0
+14:16:52.492404 db@open done T·8.3948ms
+14:16:52.505945 db@close closing
+14:16:52.505945 db@close done T·0s
+=============== Nov 8, 2022 (MSK) ===============
+22:18:53.065404 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+22:18:53.072419 version@stat F·[2] S·3KiB[3KiB] Sc·[0.50]
+22:18:53.072419 db@open opening
+22:18:53.072419 journal@recovery F·1
+22:18:53.073474 journal@recovery recovering @6
+22:18:53.076641 memdb@flush created L0@8 N·1 S·331B "eth..\xaa\xb3\x9b,v37":"eth..\xaa\xb3\x9b,v37"
+22:18:53.077665 version@stat F·[3] S·3KiB[3KiB] Sc·[0.75]
+22:18:53.085874 db@janitor F·5 G·0
+22:18:53.085874 db@open done T·13.4547ms
+22:18:53.102805 db@close closing
+22:18:53.102805 db@close done T·0s

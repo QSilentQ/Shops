@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="web3_min.js" defer></script>
+    <script src="./modules/abi.js" type="module" defer></script>
+    <script src="main.js" type="module" defer></script>
+    <title>Сеть магазинов</title>
+  </head>
+  <body>
+    <!-- Шапка -->
+    <div class="header_wrap">
+      <div class="header">
+        <label class="label-header">Сеть магазинов</label>
+        <div class="div-header">
+          <div class="div-reg">Регистрация</div>
+          <div class="div-autoriz">Авторизация</div>
+        </div>
+      </div>
+    </div>
+    <!-- Роль пользователя -->
+    <div class="role_wrap">
+      <p class="p-role">Ваша роль:</p>
+      <div class="role">Пользователь</div>
+    </div>
+    <div class="shopPlace_wrap">
+      <div class="shopPlace">
+        <p>Магазин в котором вы работаете</p>
+        <p class="shopAddressSeller"></p>
+      </div>
+    </div>
+
+    <!-- Регистрация -->
+    <div class="registration_wrap">
+      <div class="registration">
+        <p class="reg-p">Регистрация</p>
+        <div class="add">
+          <p class="reg-ap">Адресс кошелька</p>
+          <input
+            list="reg-character"
+            placeholder="Address"
+            class="reg-address"
+          />
+          <datalist id="reg-character" class="reg-addressl"></datalist>
+        </div>
+        <div class="nickname">
+          <p class="reg-pp">Имя пользователя</p>
+          <input
+            type="text"
+            placeholder="Имя пользователя"
+            class="reg-nickname"
+          />
+        </div>
+        <div class="pass">
+          <p class="reg-pp">Пароль</p>
+          <input type="password" placeholder="Password" class="reg-password" />
+        </div>
+        <div class="btn">
+          <button class="reg-btn">Зарегистрироваться</button>
+        </div>
+      </div>
+    </div>
+    <!-- Авторизация -->
+    <div class="autorization_wrap">
+      <div class="autorization">
+        <p class="reg-p">Авторизация</p>
+        <div class="add">
+          <p class="reg-ap">Адресс кошелька</p>
+          <input
+            list="aut-character"
+            placeholder="Address"
+            class="aut-address"
+          />
+          <datalist id="aut-character" class="aut-addressl"></datalist>
+        </div>
+        <div class="pass">
+          <p class="reg-pp">Пароль</p>
+          <input type="password" placeholder="Password" class="aut-password" />
+        </div>
+        <div class="btn">
+          <button class="aut-btn">Авторизоваться</button>
+        </div>
+      </div>
+    </div>
+    <div class="window_space">
+      <!-- Функции для всех -->
+      <!-- Список магазинов -->
+      <div class="0">
+        <div class="shops_wrap">
+          <div class="shops">
+            <p class="shop-p">Список магазинов</p>
+            <div class="shopList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Функции Админа -->
+      <!-- Создать новый магазин -->
+      <div class="1">
+        <div class="shopCreate_wrap">
+          <div class="shopCreate">
+            <p class="newShop-p">Создание магазина</p>
+            <input
+              type="text"
+              class="new shopAddress"
+              placeholder="Адрес магазина"
+            />
+            <input type="text" class="new shopCity" placeholder="Город" />
+            <button class="shopCreateBtn">Создать магазин</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Удалить магазин -->
+      <div class="2">
+        <div class="shopDelete_wrap">
+          <div class="shopDelete">
+            <p>Удаление магазина</p>
+            <input
+              type="text"
+              placeholder="Номер магазин"
+              class="deleteShopInp"
+            />
+            <button class="btnDeleteShop">Удалить магазин</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="second_space" style="display: flex">
+      <!-- Повысить пользователя до продавца -->
+      <div class="upToSeller_wrap">
+        <div class="upToSeller">
+          <p class="upSeller">Повышение пользователя до продавца</p>
+          <input
+            type="text"
+            class="upS addP"
+            placeholder="Адрес пользователя"
+          />
+          <input type="text" class="upS addS" placeholder="Адрес магазина" />
+          <div class="btnD"><button class="btnUpS">Повысить</button></div>
+        </div>
+      </div>
+      <!-- Добавление нового админа -->
+      <div class="newAdmin_wrap">
+        <div class="newAdmin">
+          <p>Добавить нового администратора</p>
+          <input type="text" class="inpA" placeholder="Адрес пользователя" />
+          <button class="btnUpA">Повысить</button>
+        </div>
+      </div>
+      <!-- Админ меняет псевдо-роль на покупателя и обратно -->
+      <div class="changeRoleA_wrap">
+        <div class="changeRoleA">
+          <p>Изменить роль себе</p>
+          <input type="text" class="desiredRoleA" placeholder="Желаемая роль" />
+          <button class="btnDesiredA">Изменить</button>
+        </div>
+      </div>
+    </div>
+    <div class="third_space">
+      <!-- Подача заявки на желаемую роль -->
+      <div class="requestChangeRole_wrap">
+        <div class="requestChangeRole">
+          <p>Заявка на смену роли</p>
+          <input type="text" class="desRoleM" placeholder="Желаемая роль" />
+          <input type="text" class="desiredShop" placeholder="Адрес магазина" />
+          <button class="btnDesRoleM">Подать заявку</button>
+        </div>
+      </div>
+      <!-- Повышение или повышение роли по заявке -->
+      <div class="acceptCRole_wrap">
+        <div class="acceptCRole">
+          <p>Заявка на смену роли</p>
+          <input type="text" class="inpR" placeholder="Введите номер заявки" />
+          <button class="btnR">Принять заявку</button>
+        </div>
+      </div>
+      <!-- Смена роли на покупателя -->
+      <div class="changeMySelf_wrap">
+        <div class="changeMySelf">
+          <p>Поменять роль</p>
+          <input
+            type="text"
+            class="changeMySelfInp"
+            placeholder="Введите активную роль"
+          />
+          <button class="btnchangeMySelf">Сменить активную роль</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Функции обычного пользователя -->
+    <!-- Написать комментарий -->
+    <!-- Написать отзыв к комментарию -->
+    <!-- Лайк/Дизлайк к отзыву -->
+
+    <!-- Функция продавца -->
+  </body>
+</html>

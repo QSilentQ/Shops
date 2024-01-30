@@ -1,0 +1,218 @@
+// SPDX-License-Identifier: GPL-3.0
+
+pragma solidity >=0.7.0 <0.9.0;
+
+contract Shops {
+
+    struct User{
+        address user_ShopAddress; // Адрес магазина в котором может работать пользователь
+        string user_Name; // Имя пользователя
+        bytes32 user_Password; // Пароль пользователя
+        // Роли: 0 - Покупатель, 1 - Продавец, 2 - Администратор
+        uint user_Role; // Постоянная роль
+        uint user_RoleActive; // Роль, на которую можно переключиться
+        // История "Был повышен до продавца" или "Был понижен до покупателя"
+        string[] user_History;
+        bool user_Status; // Решил сделать статус регистрации
+        bool user_AutorizationStatus; // Статус авторизации
+    }
+
+    mapping(address => User) public members;
+
+    struct Member { // Для перебора и удаления работников
+        address member_Address; // Адрес пользователя
+    }
+
+    Member[] allMembers;
+
+    struct Shop {
+        uint shop_number; // Номер магазина
+        address shop_WalletAddress; // Адрес магазина
+        string shop_City; // Город, в котором находится магазин
+        Journal[] journals; // Отзывы магазина
+        bool shop_Status; // Статус существования магазина, true = существует, false = удалён
+    }
+
+    uint ShopId; // Глобальный счётчик магазинов
+
+    Shop[] shops;
+
+    struct Journal {
+        address user_WalletAddress; // Адрес пользователя, который оставил отзыв
+        uint stars; // Оценка по 10 бальной системе
+        string user_FeedBack; // Комментарий к отзыву
+        LikeDislike[] likeDislikes; // Массив лайков и дизлайков
+        ReviewComment[] comments; // Ответы на отзыв
+    }
+
+    struct ReviewComment {
+        address owner; // Кто ответил на отзыв
+        string comment; // Комментарий на отзыв
+    }
+
+    struct LikeDislike {
+        address owner; // Кто поставил оценку
+        bool rate; // true = like, false = dislike
+    }
+
+    struct UserRequest {
+        address user_WalletAddress; // Адрес пользователя, который оставляет заявку
+        uint user_DesiredRole; // Роль, которую он хочет, либо 0, либо 1 (Понижение/Повышение)
+        bool user_StatusRequest; // Статус, была ли одобрена и выполнена заявка
+    }
+
+    UserRequest[] requests;
+
+    constructor() {
+        members[0x07A6E98E69FC7Cf290C815CFE47CCB2b40990702] = User(0x0000000000000000000000000000000000000000,"Silent",keccak256(abi.encodePacked("silenttt")),2,2,new string[](0), true, false);
+        members[0x07A6E98E69FC7Cf290C815CFE47CCB2b40990702].user_History.push("User added. ");
+        allMembers.push(Member(0x07A6E98E69FC7Cf290C815CFE47CCB2b40990702));
+        ShopId = 0; // По дефолту инициализируем переменную
+    }
+
+    function Registration(string memory user_Name, string memory user_Password) public {
+        require(members[msg.sender].user_Status != true, "User already exists."); // Проверка на существования пользователя в системе
+        members[msg.sender] = User(0x0000000000000000000000000000000000000000,user_Name,keccak256(abi.encodePacked(user_Password)),0,0,new string[](0), true, false);
+        members[msg.sender].user_History.push("User added. ");
+        allMembers.push(Member(msg.sender));
+    }
+
+    function Autorization(string memory user_Password) public {
+        require(members[msg.sender].user_Status == true, "User doesn't exists"); // Проверка на существования пользователя в системе
+        require(members[msg.sender].user_Password == keccak256(abi.encodePacked(user_Password))); // Проверка пароля
+        members[msg.sender].user_AutorizationStatus = true; // Залогин
+    }
+
+    function DeAuthorization() public {
+        require(members[msg.sender].user_Status == true, "User doesn't exists."); // Проверка на существования пользователя в системе
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        members[msg.sender].user_AutorizationStatus = false; // Разлогин
+    }
+
+    // Повышение обычного пользователя до продавца
+    function UpdateToSeller(address user_WalletAddress, address user_ShopAddress) public {
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 2, "You are not an administrator."); // Проверка на администратора
+        require(members[user_WalletAddress].user_Status == true, "User doesn't exists.");
+        // Проверка на существования пользователя в системе
+        for (uint i = 0; i < shops.length; i++) {
+            require(shops[i].shop_Status == true && shops[i].shop_WalletAddress == user_ShopAddress, "This store doesn't exist anymore."); // Если пользователь хочет устроиться в удаленный магазин
+        }
+        members[user_WalletAddress].user_Role = 1;
+        members[user_WalletAddress].user_ShopAddress = user_ShopAddress;
+        members[user_WalletAddress].user_History.push("Promoted to Seller");
+    }
+
+    // Добавление нового администратора
+    function UpdateToAdmin(address user_WalletAddress) public {
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 2, "You are not an administrator."); // Проверка на администратора
+        require(members[msg.sender].user_Status != true, "User already exists."); // Проверка на существования пользователя в системе
+        members[user_WalletAddress].user_ShopAddress = 0x0000000000000000000000000000000000000000; // Если человек становится администратором, ему нет смысла работать в магазине
+        members[user_WalletAddress].user_Role = 2; // Изменение постоянной роли на администратора
+        members[user_WalletAddress].user_History.push("Promoted to Administrator");
+    }
+
+    // Функция для админа
+    // Возможно переписать функционал под интерфейс, чтобы он по клику мог туда обратно делать, а не писать на какую роль ему надо
+    function AdminChangeRoleMyself(uint ActiveRole) public {
+        require(members[msg.sender].user_Status == true, "User doesn't exists."); // Проверка на существования пользователя в системе
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 2, "You are not an administrator."); // Проверка на администратора
+        require(ActiveRole != 1, "You can't do this."); // Админу нет смысла становиться продавцом
+        members[msg.sender].user_RoleActive = ActiveRole;
+    }
+
+    // Псевдо переход на другую роль
+    function SellerChangeRoleMyself(uint ActiveRole) public { // Фактический продавец просто может переключиться на роль покупателя
+        require(members[msg.sender].user_Status == true, "User doesn't exists."); // Проверка на существования пользователя в системе
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 1, "You're not even a seller.");
+        require(ActiveRole != 2, "You can't do this."); //
+        members[msg.sender].user_RoleActive = ActiveRole;
+    }
+
+    // Пользователь создаёт завявку на изменение роли
+    function SubmitRequest(uint DesiredRole) public { // Хочет либо стать продавцом либо покупателем
+        require(members[msg.sender].user_Status == true, "User doesn't exists."); // Проверка на существования пользователя в системе
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role != 2, "Why?"); // Зачем администратору подавать заявку на смену роли
+        require(DesiredRole == 1 || DesiredRole == 0, "No other way."); // Проверка на роли, которые может выбрать пользователь
+        requests.push(UserRequest(msg.sender, DesiredRole, false)); // Создаем заявку на изменение роли
+    }
+
+    function CreateNewShop(address _shop_WalletAddress, string memory _shop_City) public {
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 2, "You are not an administrator."); // Проверка на администратора
+        for (uint i = 0; i < shops.length; i++) {
+            if (shops[i].shop_WalletAddress == _shop_WalletAddress) {
+                revert("There is already a store with this address.");
+            }
+        }
+        ShopId++;
+        // Тут вроде всё должно быть понятно
+        Shop storage newShop = shops.push();
+        newShop.shop_number = ShopId;
+        newShop.shop_WalletAddress = _shop_WalletAddress;
+        newShop.shop_City = _shop_City;
+        newShop.shop_Status = true;
+    }
+
+    function DropShop(uint IdShop) public { // Функция на удаление магазина
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 2, "You are not an administrator."); // Проверка на администратора
+        shops[IdShop].shop_Status = false; // Удаляем магазин
+
+        for (uint i = 0; i < shops.length; i++) { // Бегаем по всем магазинам
+            if (shops[IdShop].shop_Status == false) { // Ищем все удаленные магазины
+                for(uint a = 0; a < allMembers.length; a++) { // Для удаленного магазина
+                    if(members[allMembers[a].member_Address].user_ShopAddress == shops[i].shop_WalletAddress) { // Ищем людей, кто работал в удаленных магазинах
+                        members[allMembers[a].member_Address].user_ShopAddress = 0x0000000000000000000000000000000000000000; // Удаляем адрес магазина, в котором они работа
+                    }
+                }
+            }
+        }
+    }
+
+    function AcceptNewRole(uint request_Id) public { // Смена роли по заявке администратором
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 2, "You are not an administrator."); // Проверка на администратора
+        members[requests[request_Id].user_WalletAddress].user_Role = requests[request_Id].user_DesiredRole; // Смена роли на желаемую
+    }
+
+    function createReview(uint IdShop, uint stars, string memory user_FeedBack) public { // Функция на создание комментария к магазину
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 0, "You cannot leave your review."); // Отзыв может оставить
+        require(stars <= 10 && stars > 0, "You can't send other mark.");
+
+        Journal storage ocenki = shops[IdShop].journals.push();
+        ocenki.user_WalletAddress = msg.sender;
+        ocenki.stars = stars;
+        ocenki.user_FeedBack = user_FeedBack;
+    }
+
+    function createReviewComment(uint IdShop, uint IdReview, string memory comment) public { // Функция для комментария на отзыв
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 0, "You can't leave a review on a review."); // Отзыв может оставить
+        shops[IdShop].journals[IdReview].comments.push(ReviewComment(msg.sender, comment));
+    }
+
+    function createReviewMark(uint IdShop, uint IdReview, bool rate) public { // Функция для оценки отзыва на отзыв, Лайк/Дизлайк
+        require(members[msg.sender].user_AutorizationStatus == true, "you are not authorized."); // Проверка авторизации
+        require(members[msg.sender].user_Role == 0 || members[msg.sender].user_Role == 1, "You can't leave a review on a review."); // Отзыв может оставить
+        shops[IdShop].journals[IdReview].likeDislikes.push(LikeDislike(msg.sender, rate));
+    }
+
+    function ShowAllRequests() public view returns(UserRequest[] memory) {
+        return requests;
+    }
+
+    function ShowAllShops() public view returns(Shop[] memory) {
+        return shops;
+    }
+
+    function aShow(address wallet) public view returns(User memory) {
+        return members[wallet];
+    }
+
+}
